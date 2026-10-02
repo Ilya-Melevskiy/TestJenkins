@@ -27,7 +27,7 @@ def auth_token():
 
 
 @pytest.fixture(scope="session")
-def client(auth_token):
+def auth_client(auth_token):
     """
     Авторизованный APIClient на всю сессию.
     """
@@ -50,7 +50,7 @@ fake = Faker()
 
 
 @pytest.fixture
-def make_user(client, faker_ru):
+def make_user(api_client_no_auth, faker_ru):
     """Фабрика: создаёт пользователя через API, удаляет в teardown."""
     created_ids = []
 
@@ -62,7 +62,7 @@ def make_user(client, faker_ru):
         }
         payload.update(overrides)
 
-        r = client.post(Endpoints.USERS, json=payload)
+        r = api_client_no_auth.post(Endpoints.USERS, json=payload)
         if r.status_code != 201:
             raise AssertionError(f"Create user failed: {r.status_code} {r.text}")
 
@@ -73,4 +73,4 @@ def make_user(client, faker_ru):
     yield _make
 
     for user_id in created_ids:
-        client.delete(Endpoints.USER.format(user_id=user_id))
+        api_client_no_auth.delete(Endpoints.USER.format(user_id=user_id))

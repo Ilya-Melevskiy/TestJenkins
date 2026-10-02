@@ -2,6 +2,11 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from pydantic.alias_generators import to_camel
 
 
+class Geo(BaseModel):
+    lat: str
+    lng: str
+
+
 class Address(BaseModel):
     model_config = ConfigDict(
         extra="forbid", alias_generator=to_camel, populate_by_name=True
@@ -10,9 +15,13 @@ class Address(BaseModel):
     suite: str
     city: str
     zipcode: str
+    geo: Geo | None = None
 
 
 class Company(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid", alias_generator=to_camel, populate_by_name=True
+    )
     model_config = ConfigDict(extra="forbid")
     name: str
     catchPhrase: str
@@ -20,6 +29,9 @@ class Company(BaseModel):
 
 
 class User(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid", alias_generator=to_camel, populate_by_name=True
+    )
     model_config = ConfigDict(extra="forbid")
     id: int
     name: str
@@ -32,6 +44,9 @@ class User(BaseModel):
 
 
 class UserCreate(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid", alias_generator=to_camel, populate_by_name=True
+    )
     model_config = ConfigDict(extra="forbid")
     name: str
     username: str
