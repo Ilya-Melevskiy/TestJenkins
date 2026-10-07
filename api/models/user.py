@@ -1,6 +1,6 @@
 from pydantic import EmailStr, Field, ConfigDict
 
-from .base_model import ApiModel
+from api.models.base_model import ApiModel
 
 
 class Geo(ApiModel):
