@@ -1,4 +1,4 @@
-from pydantic import EmailStr, Field, ConfigDict
+from pydantic import EmailStr, ConfigDict
 
 from api.models.base_model import ApiModel
 
@@ -9,7 +9,7 @@ class Geo(ApiModel):
 
 
 class Address(ApiModel):
-    street: str = Field(min_lenght=1)
+    street: str
     suite: str
     city: str
     zipcode: str
