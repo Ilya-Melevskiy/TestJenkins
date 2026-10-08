@@ -4,18 +4,15 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Забираем код из репозитория...'
                 checkout scm
             }
         }
 
         stage('Setup Environment') {
             steps {
-                echo 'Создаём виртуальное окружение и ставим зависимости...'
                 bat '''
                     python -m venv venv
                     call venv\\Scripts\\activate.bat
-                    pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
@@ -23,23 +20,25 @@ pipeline {
 
         stage('Run Pytest') {
             steps {
-                echo 'Запускаем тесты Pytest...'
-                bat '''
-                    call venv\\Scripts\\activate.bat
-                    pytest --alluredir=./allure-results --clean-alluredir --junitxml=results.xml
-                '''
+                // Оборачиваем шаги в withCredentials, чтобы получить путь к .env
+                withCredentials([file(credentialsId: 'env-test-jenkins', variable: 'ENV_FILE')]) {
+                    bat '''
+                        call venv\\Scripts\\activate.bat
+                        
+                        :: Загружаем переменные из .env в текущую сессию
+                        for /f "usebackq tokens=*" %%a in ("%ENV_FILE%") do set %%a
+                        
+                        :: Теперь pytest видит BASE_URL и другие переменные
+                        pytest --alluredir=./allure-results --clean-alluredir --junitxml=results.xml
+                    '''
+                }
             }
         }
     }
 
     post {
         always {
-            echo 'Публикуем отчёты...'
-            
-            // Публикация результатов JUnit (XML)
             junit 'results.xml'
-            
-            // Публикация отчёта Allure
             allure([
                 includeProperties: false,
                 jdk: '',
